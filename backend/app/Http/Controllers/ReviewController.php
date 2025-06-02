@@ -13,12 +13,31 @@ class ReviewController extends Controller
      */
     public function index(Film $film)
     {
+        \Log::info('Fetching reviews for film: ' . $film->id);
+        
         $reviews = $film->reviews()
-            ->with('user:id,name')
+            ->with(['user:id,name,email'])
             ->latest()
-            ->paginate(10);
+            ->get()
+            ->map(function ($review) {
+                return [
+                    'id' => $review->id,
+                    'content' => $review->content,
+                    'created_at' => $review->created_at,
+                    'user_id' => $review->user_id,
+                    'user' => [
+                        'id' => $review->user->id,
+                        'name' => $review->user->name
+                    ]
+                ];
+            });
             
-        return response()->json($reviews);
+        \Log::info('Found reviews: ' . $reviews->count());
+            
+        return response()->json([
+            'data' => $reviews,
+            'message' => 'Reviews retrieved successfully'
+        ]);
     }
 
     /**
@@ -26,14 +45,30 @@ class ReviewController extends Controller
      */
     public function store(Request $request, Film $film)
     {
+        // Validate the user is authenticated
+        if (!auth()->check()) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $validated = $request->validate([
             'content' => 'required|string|min:3|max:1000'
         ]);
 
-        $review = $film->reviews()->updateOrCreate(
-            ['user_id' => auth()->id()],
-            ['content' => $validated['content']]
-        );
+        // Check if user already has a review for this film
+        $existingReview = $film->reviews()
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($existingReview) {
+            return response()->json([
+                'message' => 'You have already reviewed this movie'
+            ], 400);
+        }
+
+        $review = $film->reviews()->create([
+            'user_id' => auth()->id(),
+            'content' => $validated['content']
+        ]);
 
         return response()->json($review->load('user:id,name'), 201);
     }
@@ -51,7 +86,9 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Film $film, Review $review)
     {
-        $this->authorize('update', $review);
+        if ($review->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         
         $validated = $request->validate([
             'content' => 'required|string|min:3|max:1000'
@@ -66,7 +103,9 @@ class ReviewController extends Controller
      */
     public function destroy(Film $film, Review $review)
     {
-        $this->authorize('delete', $review);
+        if ($review->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         $review->delete();
         return response()->noContent();
     }

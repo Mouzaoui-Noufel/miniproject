@@ -20,15 +20,28 @@ const movieService = {
 
   getMovieRating: async (movieId) => {
     return axiosInstance.get(`/movies/${movieId}/rating`);
-  },
-
-  // Reviews
-  getMovieReviews: async (movieId, page = 1) => {
-    return axiosInstance.get(`/movies/${movieId}/reviews?page=${page}`);
+  },  // Reviews
+  getMovieReviews: async (movieId) => {
+    try {
+      const response = await axiosInstance.get(`/movies/${movieId}/reviews`);
+      console.log('Reviews API response:', response.data);
+      return response;
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      throw error;
+    }
   },
 
   addReview: async (movieId, content) => {
-    return axiosInstance.post(`/movies/${movieId}/reviews`, { content });
+    try {
+      console.log('Adding review for movie:', movieId, 'content:', content);
+      const response = await axiosInstance.post(`/movies/${movieId}/reviews`, { content });
+      console.log('Add review response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error adding review:', error.response || error);
+      throw error;
+    }
   },
 
   updateReview: async (movieId, reviewId, content) => {

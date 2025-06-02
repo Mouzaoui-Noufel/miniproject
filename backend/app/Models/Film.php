@@ -11,7 +11,7 @@ class Film extends Model
     use HasFactory;
 
     protected $table = 'films';
-
+ 
     protected $fillable = [
         'titre',
         'resume',
@@ -21,11 +21,14 @@ class Film extends Model
         'realisateur_id',
         'image_url',
         'trailer_url'
-    ];
-
-    public function realisateur()
+    ];    public function realisateur()
     {
         return $this->belongsTo(Realisateur::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'film_id');
     }
 
     public function acteurs()
@@ -39,10 +42,7 @@ class Film extends Model
         return $this->hasMany(Rating::class);
     }
 
-    public function reviews()
-    {
-        return $this->hasMany(Review::class);
-    }
+    
 
     public function favorites()
     {
