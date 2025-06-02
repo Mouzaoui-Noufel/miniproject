@@ -1,32 +1,119 @@
-# Movie App
+# Movie Application
 
-This is a simple movie application with a Laravel backend and React frontend.
+A full-stack movie application built with Laravel and React. Features movie browsing, ratings, reviews, and favorites functionality.
 
-## Backend (Laravel)
+## Project Overview
 
-### Setup
+- **Backend**: Laravel REST API with MySQL
+- **Frontend**: React with Material-UI
+- **Authentication**: Laravel Sanctum
 
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+## Features
 
-2. Install dependencies:
-   ```
-   composer install
-   ```
+- User authentication (register/login)
+- Movie browsing with pagination
+- Search functionality
+- Movie ratings and reviews
+- Favorite movies list
+- Movie details with trailers
 
-3. Configure your `.env` file with your database credentials.
+## Project Structure
+
+```
+├── backend/           # Laravel API
+│   ├── app/          # Application core code
+│   ├── database/     # Migrations and seeders
+│   └── routes/       # API routes
+└── frontend/         # React application
+    ├── src/
+    │   ├── components/
+    │   ├── contexts/
+    │   ├── pages/
+    │   └── services/
+```
+
+## Getting Started
+
+### Backend Setup
+
+1. Install dependencies:
+```powershell
+cd backend
+composer install
+```
+
+2. Set up environment:
+```powershell
+Copy-Item .env.example .env
+php artisan key:generate
+```
+
+3. Configure database in `.env`:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=movies_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
 4. Run migrations:
-   ```
-   php artisan migrate
-   ```
+```powershell
+php artisan migrate --seed
+```
 
-5. Start the backend server:
-   ```
-   php artisan serve
-   ```
+5. Start the server:
+```powershell
+php artisan serve
+```
+
+### Frontend Setup
+
+1. Install dependencies:
+```powershell
+cd frontend
+npm install
+```
+
+2. Set up environment:
+```powershell
+Copy-Item .env.example .env
+```
+
+3. Start development server:
+```powershell
+npm start
+```
+
+## API Endpoints
+
+### Public Routes
+- `GET /api/movies` - List movies
+- `GET /api/movies/{id}` - Get movie details
+- `POST /api/register` - Register user
+- `POST /api/login` - Login user
+
+### Protected Routes
+- `POST /api/movies/{id}/rate` - Rate movie
+- `POST /api/movies/{id}/reviews` - Add review
+- `POST /api/movies/{id}/favorite` - Toggle favorite
+- `GET /api/favorites` - List favorites
+
+## Technologies Used
+
+### Backend
+- Laravel 10
+- MySQL
+- Laravel Sanctum
+- CORS enabled
+
+### Frontend
+- React 18
+- Material-UI
+- React Router
+- Axios
+- Context API
 
 The backend API endpoints are available under `http://localhost:8000/api/movies`.
 
