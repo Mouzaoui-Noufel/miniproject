@@ -14,13 +14,14 @@ const LoginPage = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs"  >
       <Box
         sx={{
           marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
@@ -28,7 +29,7 @@ const LoginPage = () => {
             Sign In
           </Typography>
           <LoginForm onLoginSuccess={handleLoginSuccess} />
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Box sx={{ mt: 2, textAlign: 'center'  }}>
             <Link href="/register" variant="body2">
               Don't have an account? Sign Up
             </Link>

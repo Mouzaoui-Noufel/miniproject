@@ -29,7 +29,7 @@ class FilmController extends Controller
         }
 
         // Pagination
-        $films = $query->paginate(3);
+        $films = $query->paginate(8);
 
         // Format the ratings_avg_rating as a float
         $films->getCollection()->transform(function ($film) {

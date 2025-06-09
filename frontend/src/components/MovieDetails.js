@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Container,
   Typography,
   Box,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
   Button,
   Divider,
   CircularProgress,
-  Alert
+  Alert,
+  Chip,
+  Stack
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import StarRating from './StarRating';
@@ -55,14 +52,10 @@ const MovieDetails = () => {
       } else {
         await movieService.rateMovie(id, newValue);
       }
-      fetchMovieDetails(); // Refresh movie data
+      fetchMovieDetails();
     } catch (err) {
       console.error('Error updating rating:', err);
     }
-  };
-  const formatRating = (rating) => {
-    const numRating = Number(rating);
-    return !isNaN(numRating) ? numRating.toFixed(1) : '0.0';
   };
 
   if (loading) {
@@ -82,94 +75,82 @@ const MovieDetails = () => {
   }
 
   return (
-    <Container>
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardMedia
-              component="img"
-              image={movie.image_url || '/placeholder-movie.jpg'}
-              alt={movie.titre}
-              sx={{ width: '100%', height: 'auto' }}
+    <Box sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom>
+        {movie.titre}
+      </Typography>
+      
+      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <Chip label={movie.annee_sortie} size="small" />
+        <Chip label={`${movie.duree} min`} size="small" />
+        {movie.genres.split(',').map(genre => (
+          <Chip key={genre} label={genre.trim()} size="small" />
+        ))}
+      </Stack>
+
+      <Typography variant="subtitle1" gutterBottom>
+        Directed by: {movie.realisateur.prenom} {movie.realisateur.nom}
+      </Typography>
+
+      <Typography variant="body1" paragraph sx={{ my: 3 }}>
+        {movie.resume}
+      </Typography>
+
+      {movie.trailer_url && (
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h6" gutterBottom>Trailer</Typography>
+          <Box sx={{ 
+            position: 'relative', 
+            paddingTop: '56.25%', 
+            overflow: 'hidden'
+          }}>
+            <iframe
+              src={movie.trailer_url}
+              title="Movie Trailer"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none'
+              }}
             />
-            <CardContent>
-              {user && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <StarRating
-                    movieId={movie.id}
-                    initialRating={movie.userRating?.rating || 0}
-                    onRatingChange={handleRatingChange}
-                  />
-                  <FavoriteButton
-                    movieId={movie.id}
-                    isFavorited={movie.isFavorited}
-                  />
-                </Box>
-              )}
-              <Typography variant="body2" color="text.secondary">
-                Average Rating: {formatRating(movie.ratings_avg_rating)} ({movie.ratings_count || 0} ratings)
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={8}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            {movie.titre}
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            Directed by: {movie.realisateur.prenom} {movie.realisateur.nom}
-          </Typography>
-          <Typography variant="body1" paragraph>
-            {movie.resume}
-          </Typography>
-
-          <Box sx={{ my: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Movie Details
-            </Typography>
-            <Typography>Year: {movie.annee_sortie}</Typography>
-            <Typography>Duration: {movie.duree} minutes</Typography>
-            <Typography>Genres: {movie.genres}</Typography>
           </Box>
+        </Box>
+      )}
 
-          {movie.trailer_url && (
-            <Box sx={{ my: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Trailer
-              </Typography>
-              <iframe
-                width="100%"
-                height="315"
-                src={movie.trailer_url}
-                title="Movie Trailer"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </Box>
-          )}
+      {/* Rating and Favorite moved here below trailer */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
+        <StarRating
+          movieId={movie.id}
+          initialRating={movie.userRating?.rating || 0}
+          onRatingChange={handleRatingChange}
+        />
+        <Typography variant="body2">
+          {movie.ratings_avg_rating?.toFixed(1) || '0.0'} ({movie.ratings_count || 0} ratings)
+        </Typography>
+        {user && <FavoriteButton movieId={movie.id} isFavorited={movie.isFavorited} />}
+      </Box>
 
-          <Divider sx={{ my: 3 }} />          <Box sx={{ my: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Reviews ({movie.reviews_count || 0})
-            </Typography>
-            {user ? (
-              <Reviews movieId={movie.id} />
-            ) : (
-              <Box sx={{ mb: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/login', { state: { from: `/movies/${movie.id}` } })}
-                >
-                  Login to Write a Review
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </Grid>
-      </Grid>
-    </Container>
+      <Divider sx={{ my: 4 }} />
+
+      <Box>
+        <Typography variant="h5" gutterBottom>Reviews</Typography>
+        {user ? (
+          <Reviews movieId={movie.id} />
+        ) : (
+          <Button
+            variant="contained"
+            onClick={() => navigate('/login', { state: { from: `/movies/${movie.id}` } })}
+          >
+            Login to Write a Review
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
 };
 

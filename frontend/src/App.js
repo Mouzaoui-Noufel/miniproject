@@ -4,6 +4,7 @@ import { Container, CircularProgress } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/Header';
 import MovieList from './components/MovieList';
+import HomePage from './pages/HomePage';
 import MovieDetails from './components/MovieDetails';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -33,7 +34,7 @@ function App() {
         <Header />
         <Container sx={{ py: 4 }}>
           <Routes>
-            <Route path="/" element={<MovieList />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/movies/:id" element={

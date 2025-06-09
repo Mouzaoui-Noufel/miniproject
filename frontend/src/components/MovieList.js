@@ -15,7 +15,8 @@ const MovieList = ({ favorites = false }) => {
     try {
       let response;
       if (favorites) {
-        response = await movieService.getFavorites(pageNumber);
+        const params = { page: pageNumber, per_page: 20 };
+        response = await movieService.getFavorites(params);
         const favoritedMovies = response.data.data.map(fav => ({
           ...fav.film,
           isFavorited: true
@@ -24,7 +25,7 @@ const MovieList = ({ favorites = false }) => {
         setPage(response.data.current_page);
         setLastPage(response.data.last_page);
       } else {
-        const params = { page: pageNumber };
+        const params = { page: pageNumber, per_page: 20 };
         if (title) {
           params.titre = title;
         }
@@ -82,18 +83,24 @@ const MovieList = ({ favorites = false }) => {
       ) : movies.length === 0 ? (
         <p>{favorites ? "You haven't favorited any movies yet." : "No movies found."}</p>
       ) : (
-        movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '20px'
+        }}>
+          {movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
+        </div>
       )}
 
       {movies.length > 0 && (
-        <div style={{ marginTop: '20px' }}>
-          <button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
+          <button onClick={() => handlePageChange(page - 1)} disabled={page === 1} style={{ padding: '8px 16px', borderRadius: '5px', border: 'none', backgroundColor: '#007bff', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
             Précédent
           </button>
-          <span style={{ margin: '0 10px' }}>
+          <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
             Page {page} sur {lastPage}
           </span>
-          <button onClick={() => handlePageChange(page + 1)} disabled={page === lastPage}>
+          <button onClick={() => handlePageChange(page + 1)} disabled={page === lastPage} style={{ padding: '8px 16px', borderRadius: '5px', border: 'none', backgroundColor: '#007bff', color: '#fff', cursor: page === lastPage ? 'not-allowed' : 'pointer' }}>
             Suivant
           </button>
         </div>
