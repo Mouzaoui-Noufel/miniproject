@@ -1,8 +1,27 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import movieService from '../services/movieService';
 
 const MovieCard = ({ movie }) => {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this film?')) {
+      return;
+    }
+    try {
+      await movieService.deleteMovie(movie.id);
+      alert('Film deleted successfully');
+      // Optionally, refresh the page or update the parent component state
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting film:', error);
+      alert('Error deleting film');
+    }
+  };
 
   return (
     <div 
@@ -68,6 +87,42 @@ const MovieCard = ({ movie }) => {
           <p style={{ marginBottom: '6px' }}><strong>Durée:</strong> {movie.duree} minutes</p>
           <p style={{ marginBottom: '6px' }}><strong>Genres:</strong> {movie.genres}</p>
           <p style={{ marginBottom: '0' }}><strong>Réalisateur:</strong> {movie.realisateur?.prenom} {movie.realisateur?.nom}</p>
+          {user && movie.user_id === user.id && (
+            <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/movies/${movie.id}/edit`);
+                }}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#1abc9c',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                Modify
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#e74c3c',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

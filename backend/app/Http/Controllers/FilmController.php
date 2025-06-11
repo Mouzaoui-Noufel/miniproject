@@ -73,38 +73,52 @@ class FilmController extends Controller
             ->get();
 
         return response()->json($film);
-    }    public function store(Request $request)
+    }
+
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'titre' => 'required|string|max:255',
-            'resume' => 'nullable|string',
-            'annee_sortie' => 'nullable|digits:4|integer',
-            'duree' => 'nullable|integer',
-            'genres' => 'nullable|string',
-            'realisateur_id' => 'required|exists:realisateurs,id',
-            'image_url' => 'nullable|url',
-            'trailer_url' => 'nullable|url',
-            'acteurs' => 'nullable|array',
-            'acteurs.*.id' => 'exists:acteurs,id',
-            'acteurs.*.role' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'titre' => 'required|string|max:255',
+                'resume' => 'nullable|string',
+                'annee_sortie' => 'nullable|digits:4|integer',
+                'duree' => 'nullable|integer',
+                'genres' => 'nullable|string',
+                'realisateur_id' => 'required|exists:realisateurs,id',
+                'image_url' => 'nullable|url',
+                'trailer_url' => 'nullable|url',
+                'acteurs' => 'nullable|array',
+                'acteurs.*.id' => 'exists:acteurs,id',
+                'acteurs.*.role' => 'nullable|string',
+            ]);
 
-        $film = Film::create($validated);
+            $validated['user_id'] = auth()->id();
 
-        if (!empty($validated['acteurs'])) {
-            $attachData = [];
-            foreach ($validated['acteurs'] as $acteur) {
-                $attachData[$acteur['id']] = ['role' => $acteur['role'] ?? null];
+            $film = Film::create($validated);
+
+            if (!empty($validated['acteurs'])) {
+                $attachData = [];
+                foreach ($validated['acteurs'] as $acteur) {
+                    $attachData[$acteur['id']] = ['role' => $acteur['role'] ?? null];
+                }
+                $film->acteurs()->attach($attachData);
             }
-            $film->acteurs()->attach($attachData);
-        }
 
-        return response()->json($film, 201);
+            return response()->json($film, 201);
+        } catch (\Exception $e) {
+            \Log::error('Error creating film: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create film', 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
         $film = Film::findOrFail($id);
+
+        // Authorization: only owner can update
+        if ($film->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
         $validated = $request->validate([
             'titre' => 'sometimes|required|string|max:255',
@@ -134,6 +148,12 @@ class FilmController extends Controller
     public function destroy($id)
     {
         $film = Film::findOrFail($id);
+
+        // Authorization: only owner can delete
+        if ($film->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $film->acteurs()->detach();
         $film->delete();
 

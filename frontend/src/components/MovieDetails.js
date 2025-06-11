@@ -58,6 +58,24 @@ const MovieDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this movie?')) {
+      return;
+    }
+    try {
+      await movieService.deleteMovie(id);
+      alert('Movie deleted successfully');
+      navigate('/');
+    } catch (err) {
+      console.error('Error deleting movie:', err);
+      alert('Failed to delete movie');
+    }
+  };
+
+  const handleEdit = () => {
+    navigate(`/movies/${id}/edit`);
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -73,6 +91,8 @@ const MovieDetails = () => {
   if (!movie) {
     return <Alert severity="info">Movie not found</Alert>;
   }
+
+  const isOwner = user && movie.user_id === user.id;
 
   return (
     <Box sx={{ py: 4 }}>
@@ -134,6 +154,17 @@ const MovieDetails = () => {
         </Typography>
         {user && <FavoriteButton movieId={movie.id} isFavorited={movie.isFavorited} />}
       </Box>
+
+      {isOwner && (
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <Button variant="contained" color="primary" onClick={handleEdit}>
+            Edit
+          </Button>
+          <Button variant="outlined" color="error" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Box>
+      )}
 
       <Divider sx={{ my: 4 }} />
 

@@ -20,8 +20,11 @@ class Film extends Model
         'genres',
         'realisateur_id',
         'image_url',
-        'trailer_url'
-    ];    public function realisateur()
+        'trailer_url',
+        'user_id',
+    ];
+
+    public function realisateur()
     {
         return $this->belongsTo(Realisateur::class);
     }
@@ -42,8 +45,6 @@ class Film extends Model
         return $this->hasMany(Rating::class);
     }
 
-    
-
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
@@ -52,5 +53,10 @@ class Film extends Model
     public function averageRating()
     {
         return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

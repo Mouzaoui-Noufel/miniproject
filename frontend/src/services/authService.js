@@ -38,6 +38,7 @@ axiosInstance.interceptors.response.use(
 
 const authService = {
     register: async (name, email, password) => {
+        await axiosInstance.get('/sanctum/csrf-cookie');
         const response = await axiosInstance.post('/register', {
             name,
             email,
@@ -51,6 +52,7 @@ const authService = {
     },
 
     login: async (email, password) => {
+        await axiosInstance.get('/sanctum/csrf-cookie');
         const response = await axiosInstance.post('/login', {
             email,
             password

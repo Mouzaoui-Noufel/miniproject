@@ -9,6 +9,18 @@ const movieService = {
     return axiosInstance.get(`/movies/${id}`);
   },
 
+  createMovie: async (movieData) => {
+    return axiosInstance.post('/movies', movieData);
+  },
+
+  updateMovie: async (id, movieData) => {
+    return axiosInstance.put(`/movies/${id}`, movieData);
+  },
+
+  deleteMovie: async (id) => {
+    return axiosInstance.delete(`/movies/${id}`);
+  },
+
   // Ratings
   rateMovie: async (movieId, rating) => {
     return axiosInstance.post(`/movies/${movieId}/rate`, { rating });

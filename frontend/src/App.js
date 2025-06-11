@@ -8,6 +8,8 @@ import HomePage from './pages/HomePage';
 import MovieDetails from './components/MovieDetails';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AddFilmPage from './pages/AddFilmPage';
+import EditFilmPage from './pages/EditFilmPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -45,6 +47,16 @@ function App() {
             <Route path="/favorites" element={
               <ProtectedRoute>
                 <MovieList favorites={true} />
+              </ProtectedRoute>
+            } />
+            <Route path="/add-film" element={
+              <ProtectedRoute>
+                <AddFilmPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/movies/:id/edit" element={
+              <ProtectedRoute>
+                <EditFilmPage />
               </ProtectedRoute>
             } />
           </Routes>

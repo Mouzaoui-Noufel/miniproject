@@ -47,6 +47,13 @@ const Header = () => {
               </Button>
               <Button
                 color="inherit"
+                component={RouterLink}
+                to="/add-film"
+              >
+                Add Film
+              </Button>
+              <Button
+                color="inherit"
                 onClick={handleLogout}
               >
                 Logout
